@@ -1,9 +1,17 @@
 import React , { Component } from "react";
+import PorpTypes from 'prop-types';
  import  api from '../../services/api';
 
 // import { Container } from './styles';
 
 export default class Repository extends Component{
+  static PorpTypes={
+    match: PorpTypes.shape({
+      params: PorpTypes.shape({
+        repository: PorpTypes.string,
+      }),
+    }).isRequired,
+  };
   state = {
     repository: {}, // criado como objeto pois irá receber somente uma reposta.
     issues: [], // criado como array pois irá receber varios resultados
