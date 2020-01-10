@@ -15,7 +15,7 @@ export const Form = styled.form`
   flex-direction: row;
   input {
     flex: 1;
-    border: 1px solid #eee;
+    border: 1px solid ${props => (props.error ? '#ff4040' : '#eee')};
     padding: 10px 15px;
     border-radius: 4px;
     font-size:16px;

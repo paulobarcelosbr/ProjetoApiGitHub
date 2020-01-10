@@ -12,6 +12,7 @@ export default class Main extends Component {
     newRepo: '',
     loading: false,
     repositories:[],
+    error: null,
   };
 
   //carregar os dados do localStorage
@@ -29,12 +30,20 @@ export default class Main extends Component {
   }
 
 handleInputChange = e => {
-  this.setState ({ newRepo: e.target.value});
+  this.setState ({ newRepo: e.target.value, error: null});
 }
 handleSubmit = async e =>{
   e.preventDefault();
-  this.setState({ loading: true});
+  this.setState({ loading: true, error:false});
+
+try{
   const { newRepo, repositories  } = this.state;
+
+  if(newRepo === '') throw 'Você precisa inicar um repositório';
+
+  const hasRepo = repositories.find (r => r.name === newRepo);
+
+  if(hasRepo) throw 'Repositório duplicado';
 
   const response = await api.get(`/repos/${newRepo}`);
 
@@ -44,19 +53,22 @@ handleSubmit = async e =>{
   this.setState({
     repositories: [...repositories,data],
     newRepo: '',
-    loading: false,
-
   });
+}catch(error){
+  this.setState({error: true});
+}finally{
+  this.setState({ loading: false});
+}
 }
  render(){
-   const { newRepo, loading, repositories } = this.state
+   const { newRepo, loading, repositories, error } = this.state
   return (
    <Container>
      <h1>
       <FaGithubAlt />
        Repositórios
      </h1>
-     <Form onSubmit={this.handleSubmit}>
+     <Form onSubmit={this.handleSubmit} error={error}>
         <input
             type ="text"
             placeholder="Adicionar repositório"
@@ -64,15 +76,19 @@ handleSubmit = async e =>{
             onChange={this.handleInputChange}
           />
           <SubmitButton loading={loading}>
-            { loading ? <FaSpinner color="FFF" size={14} /> : <FaPlus color="#fff" size={14} />  }
-
+            { loading ? (
+                <FaSpinner color="FFF" size={14} />
+            ):( <FaPlus color="#fff" size={14} />
+            ) }
           </SubmitButton>
      </ Form>
       <List>
             {repositories.map(repository =>(
               <li key={repository.name}>
                       <span>{repository.name}</span>
-                      <Link to={`/repository/${encodeURIComponent(repository.name)}`}>Detalhes</Link>
+                      <Link to={`/repository/${encodeURIComponent(repository.name)}`}>
+                        Detalhes
+                        </Link>
               </li>
             ))}
       </List>
